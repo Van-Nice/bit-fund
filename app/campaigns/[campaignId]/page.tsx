@@ -1,38 +1,54 @@
-import Image from "next/image"
-import { Bitcoin, Calendar, Shield, ExternalLink } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Bitcoin, Calendar, Shield, ExternalLink } from "lucide-react";
+import { CampaignService } from "../../../utils/services/CampaignService";
+import { verifyDatabaseConnection } from "../../../utils/data-source";
 
-const campaign = {
-  id: 1,
-  name: "Decentralized Energy Grid",
-  description:
-    "Our project aims to revolutionize the energy sector by creating a decentralized energy grid powered by blockchain technology. This innovative system will enable peer-to-peer energy trading, allowing individuals and businesses to buy, sell, and trade excess energy directly with each other.\n\nKey features of our decentralized energy grid include:\n\n1. Peer-to-peer energy trading\n2. Smart contract-based transactions\n3. Integration with renewable energy sources\n4. Real-time energy consumption and production tracking\n5. Incentive mechanisms for energy conservation\n\nBy leveraging blockchain technology, we can create a more efficient, transparent, and sustainable energy ecosystem. This project has the potential to reduce energy costs, promote the adoption of renewable energy sources, and empower consumers to take control of their energy usage and production.",
-  creator: "EnergyChain Labs",
-  creatorImage: "/placeholder.svg?height=100&width=100",
-  category: "Technology",
-  goal: 5,
-  current: 3.2,
-  backers: 128,
-  deadline: "2025-06-30",
-  image: "/placeholder.svg?height=400&width=800",
-  rewards: [
-    { amount: 0.01, description: "Early Supporter: Get exclusive project updates and a digital badge." },
-    { amount: 0.05, description: "Beta Tester: Early access to the platform and a personalized energy report." },
-    { amount: 0.1, description: "Energy Pioneer: All previous rewards + a limited edition physical coin." },
-    {
-      amount: 0.5,
-      description: "Grid Innovator: All previous rewards + 1-year free premium features on the platform.",
-    },
-  ],
-  backersList: [
-    { name: "Satoshi N.", amount: 0.5 },
-    { name: "Alice B.", amount: 0.1 },
-    { name: "Bob C.", amount: 0.05 },
-    { name: "Charlie D.", amount: 0.01 },
-  ],
-  smartContractAddress: "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+// Add this type definition at the top of your file
+type Reward = {
+  amount: number;
+  description: string;
+};
+
+async function getCampaign(id: string) {
+  try {
+    await verifyDatabaseConnection();
+    const campaignService = new CampaignService();
+    const campaign = await campaignService.getCampaignById(id);
+    if (!campaign) {
+      throw new Error("Campaign not found");
+    }
+    return campaign;
+  } catch (error) {
+    console.error("Error fetching campaign:", error);
+    throw error;
+  }
 }
 
-export default function CampaignDetails() {
+export default async function CampaignDetails({
+  params,
+}: {
+  params: { campaignId: string };
+}) {
+  const campaign = await getCampaign(params.campaignId);
+
+  // Mock data for features not yet in database
+  const mockData = {
+    creator: "Anonymous",
+    creatorImage: "/placeholder.svg?height=100&width=100",
+    category: "Technology",
+    current: 0,
+    backers: 0,
+    image: "/placeholder.svg?height=400&width=800",
+    rewards: [
+      {
+        amount: 0.01,
+        description: "Early Supporter: Get exclusive project updates",
+      }
+    ] as Reward[],  // Add the type assertion here
+    backersList: [],
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -45,24 +61,36 @@ export default function CampaignDetails() {
           <nav>
             <ul className="flex space-x-6">
               <li>
-                <a href="/" className="hover:text-yellow-500 transition-colors">
+                <Link
+                  href="/"
+                  className="hover:text-yellow-500 transition-colors"
+                >
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/campaigns" className="hover:text-yellow-500 transition-colors">
+                <Link
+                  href="/campaigns"
+                  className="hover:text-yellow-500 transition-colors"
+                >
                   Campaigns
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-yellow-500 transition-colors">
+                <Link
+                  href="/about"
+                  className="hover:text-yellow-500 transition-colors"
+                >
                   About
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-yellow-500 transition-colors">
+                <Link
+                  href="/contact"
+                  className="hover:text-yellow-500 transition-colors"
+                >
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -74,38 +102,48 @@ export default function CampaignDetails() {
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Content */}
             <div className="lg:w-2/3">
-              <h1 className="text-4xl font-bold mb-4">{campaign.name}</h1>
+              <h1 className="text-4xl font-bold mb-4">
+                {campaign.project_name}
+              </h1>
               <div className="flex items-center space-x-4 mb-6">
                 <Image
-                  src={campaign.creatorImage || "/placeholder.svg"}
-                  alt={campaign.creator}
+                  src={mockData.creatorImage}
+                  alt={mockData.creator}
                   width={40}
                   height={40}
                   className="rounded-full"
                 />
-                <span className="text-gray-600">{campaign.creator}</span>
-                <span className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">{campaign.category}</span>
+                <span className="text-gray-600">{mockData.creator}</span>
+                <span className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
+                  {mockData.category}
+                </span>
               </div>
               <Image
-                src={campaign.image || "/placeholder.svg"}
-                alt={campaign.name}
+                src={mockData.image}
+                alt={campaign.project_name}
                 width={800}
                 height={400}
                 className="w-full rounded-lg mb-8"
               />
 
               <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                <h2 className="text-2xl font-semibold mb-4">About this project</h2>
-                <p className="text-gray-600 whitespace-pre-line">{campaign.description}</p>
+                <h2 className="text-2xl font-semibold mb-4">
+                  About this project
+                </h2>
+                <p className="text-gray-600 whitespace-pre-line">
+                  {campaign.project_description}
+                </p>
               </div>
 
               <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h2 className="text-2xl font-semibold mb-4">Rewards</h2>
                 <div className="space-y-4">
-                  {campaign.rewards.map((reward, index) => (
+                  {mockData.rewards.map((reward, index) => (
                     <div key={index} className="border rounded-lg p-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="font-semibold">{reward.amount} BTC</span>
+                        <span className="font-semibold">
+                          {reward.amount} BTC
+                        </span>
                         <span className="text-yellow-500">Pledge</span>
                       </div>
                       <p className="text-gray-600">{reward.description}</p>
@@ -118,31 +156,47 @@ export default function CampaignDetails() {
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-semibold">Backers</h2>
                   <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-5 w-5 text-yellow-500" />
+                    <input
+                      type="checkbox"
+                      className="form-checkbox h-5 w-5 text-yellow-500"
+                    />
                     <span className="ml-2 text-gray-600">Show backers</span>
                   </label>
                 </div>
                 <div className="space-y-4">
-                  {campaign.backersList.map((backer, index) => (
-                    <div key={index} className="flex justify-between items-center">
+                  {mockData.backersList.map((backer, index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center"
+                    >
                       <span>{backer.name}</span>
-                      <span className="text-yellow-500">{backer.amount} BTC</span>
+                      <span className="text-yellow-500">
+                        {backer.amount} BTC
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold mb-4">Verify Smart Contract</h2>
+                <h2 className="text-2xl font-semibold mb-4">
+                  Smart Contract Details
+                </h2>
                 <div className="flex items-center space-x-2 text-gray-600">
                   <Shield className="h-5 w-5" />
-                  <span>Smart Contract Address:</span>
+                  <span>Transaction ID:</span>
                 </div>
                 <div className="flex items-center justify-between mt-2">
-                  <code className="bg-gray-100 px-2 py-1 rounded">{campaign.smartContractAddress}</code>
-                  <a href="#" className="text-yellow-500 hover:underline flex items-center">
+                  <code className="bg-gray-100 px-2 py-1 rounded">
+                    {campaign.tx_id}
+                  </code>
+                  <Link
+                    href={`https://explorer.stacks.co/txid/${campaign.tx_id}`}
+                    target="_blank"
+                    className="text-yellow-500 hover:underline flex items-center"
+                  >
                     Verify <ExternalLink className="h-4 w-4 ml-1" />
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -150,40 +204,40 @@ export default function CampaignDetails() {
             {/* Sidebar */}
             <div className="lg:w-1/3">
               <div className="bg-white rounded-lg shadow-md p-6 sticky top-8">
-                <div className="mb-6">
-                  <div className="flex justify-between text-sm text-gray-500 mb-1">
-                    <span>Progress</span>
-                    <span>{Math.round((campaign.current / campaign.goal) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="bg-yellow-500 h-2.5 rounded-full"
-                      style={{ width: `${(campaign.current / campaign.goal) * 100}%` }}
-                    ></div>
-                  </div>
+                <div className="text-3xl font-bold mb-2">
+                  {mockData.current} BTC
                 </div>
-                <div className="text-3xl font-bold mb-2">{campaign.current} BTC</div>
-                <div className="text-gray-600 mb-6">raised of {campaign.goal} BTC goal</div>
+                <div className="text-gray-600 mb-6">
+                  raised of {campaign.funding_goal / 1e8} sBTC goal
+                </div>
                 <div className="flex justify-between mb-6">
                   <div>
-                    <div className="text-2xl font-bold">{campaign.backers}</div>
+                    <div className="text-2xl font-bold">{mockData.backers}</div>
                     <div className="text-gray-600">backers</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold">
                       {Math.ceil(
-                        (new Date(campaign.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
+                        (new Date(campaign.deadline).getTime() -
+                          new Date().getTime()) /
+                          (1000 * 60 * 60 * 24)
                       )}
                     </div>
                     <div className="text-gray-600">days to go</div>
                   </div>
                 </div>
-                <button className="w-full bg-yellow-500 text-white py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors">
+                <Link
+                  href={`/campaigns/${campaign.id}/invest`}
+                  className="block w-full bg-yellow-500 text-center text-white py-3 rounded-lg font-semibold hover:bg-yellow-600 transition-colors"
+                >
                   Invest in this project
-                </button>
+                </Link>
                 <div className="mt-6 flex items-center justify-center text-sm text-gray-500">
                   <Calendar className="h-4 w-4 mr-2" />
-                  <span>Campaign ends on {new Date(campaign.deadline).toLocaleDateString()}</span>
+                  <span>
+                    Campaign ends on{" "}
+                    {new Date(campaign.deadline).toLocaleDateString()}
+                  </span>
                 </div>
               </div>
             </div>
@@ -197,23 +251,34 @@ export default function CampaignDetails() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-4">About BitFund</h3>
-              <p className="text-sm text-gray-400">Empowering innovators through Bitcoin-based crowdfunding.</p>
+              <p className="text-sm text-gray-400">
+                Empowering innovators through Bitcoin-based crowdfunding.
+              </p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="text-sm text-gray-400">
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     How It Works
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Start a Project
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Explore Projects
                   </a>
                 </li>
@@ -223,17 +288,26 @@ export default function CampaignDetails() {
               <h3 className="text-lg font-semibold mb-4">Legal</h3>
               <ul className="text-sm text-gray-400">
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Terms of Service
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Privacy Policy
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Cookie Policy
                   </a>
                 </li>
@@ -243,17 +317,26 @@ export default function CampaignDetails() {
               <h3 className="text-lg font-semibold mb-4">Connect</h3>
               <ul className="text-sm text-gray-400">
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Twitter
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Telegram
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Discord
                   </a>
                 </li>
@@ -266,6 +349,5 @@ export default function CampaignDetails() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
-

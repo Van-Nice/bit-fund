@@ -1,64 +1,23 @@
-import Image from "next/image"
-import { Bitcoin, Search, Filter, ArrowUpDown } from "lucide-react"
+import { Search, Filter, ArrowUpDown, Bitcoin } from "lucide-react";
+import Link from "next/link";
+import { CampaignService } from "../../utils/services/CampaignService";
+import { verifyDatabaseConnection } from "../../utils/data-source";
 
-const campaigns = [
-  {
-    id: 1,
-    name: "Decentralized Energy Grid",
-    description: "Creating a peer-to-peer energy trading platform using blockchain technology.",
-    goal: 5,
-    current: 3.2,
-    deadline: "2025-06-30",
-    category: "Technology",
-  },
-  {
-    id: 2,
-    name: "Bitcoin Education for All",
-    description: "Developing free, accessible Bitcoin education materials for underserved communities.",
-    goal: 2,
-    current: 0.8,
-    deadline: "2025-05-15",
-    category: "Education",
-  },
-  {
-    id: 3,
-    name: "Eco-Friendly Bitcoin Mining",
-    description: "Innovating sustainable Bitcoin mining solutions using renewable energy sources.",
-    goal: 10,
-    current: 6.5,
-    deadline: "2025-08-01",
-    category: "Environment",
-  },
-  {
-    id: 4,
-    name: "Bitcoin Art Gallery",
-    description: "Launching a virtual art gallery showcasing Bitcoin-inspired digital art and NFTs.",
-    goal: 1.5,
-    current: 0.9,
-    deadline: "2025-04-30",
-    category: "Art",
-  },
-  {
-    id: 5,
-    name: "Lightning Network Expansion",
-    description: "Improving Bitcoin's Lightning Network infrastructure for faster, cheaper transactions.",
-    goal: 8,
-    current: 4.2,
-    deadline: "2025-07-15",
-    category: "Technology",
-  },
-  {
-    id: 6,
-    name: "Bitcoin for Small Businesses",
-    description: "Creating tools and resources to help small businesses adopt Bitcoin payments.",
-    goal: 3,
-    current: 1.8,
-    deadline: "2025-05-31",
-    category: "Business",
-  },
-]
+async function getCampaigns() {
+  try {
+    await verifyDatabaseConnection();
+    const campaignService = new CampaignService();
+    const campaigns = await campaignService.getAllCampaigns();
+    return campaigns;
+  } catch (error) {
+    console.error("Error fetching campaigns:", error);
+    return [];
+  }
+}
 
-export default function ExploreCampaigns() {
+export default async function ExploreCampaigns() {
+  const campaigns = await getCampaigns();
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -71,24 +30,33 @@ export default function ExploreCampaigns() {
           <nav>
             <ul className="flex space-x-6">
               <li>
-                <a href="/" className="hover:text-yellow-500 transition-colors">
+                <Link
+                  href="/"
+                  className="hover:text-yellow-500 transition-colors"
+                >
                   Home
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/campaigns" className="text-yellow-500">
+                <Link href="/campaigns" className="text-yellow-500">
                   Campaigns
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-yellow-500 transition-colors">
+                <Link
+                  href="/about"
+                  className="hover:text-yellow-500 transition-colors"
+                >
                   About
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-yellow-500 transition-colors">
+                <Link
+                  href="/contact"
+                  className="hover:text-yellow-500 transition-colors"
+                >
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
@@ -111,7 +79,13 @@ export default function ExploreCampaigns() {
             </div>
             <div className="flex space-x-4">
               <div className="relative">
-                <select className="appearance-none bg-white border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                <label htmlFor="category-select" className="sr-only">
+                  Select Category
+                </label>
+                <select
+                  id="category-select"
+                  className="appearance-none bg-white border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                >
                   <option>All Categories</option>
                   <option>Technology</option>
                   <option>Education</option>
@@ -122,7 +96,13 @@ export default function ExploreCampaigns() {
                 <Filter className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 pointer-events-none" />
               </div>
               <div className="relative">
-                <select className="appearance-none bg-white border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                <label htmlFor="sort-select" className="sr-only">
+                  Sort By
+                </label>
+                <select
+                  id="sort-select"
+                  className="appearance-none bg-white border border-gray-300 rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                >
                   <option>Sort By</option>
                   <option>Newest</option>
                   <option>Most Funded</option>
@@ -133,46 +113,32 @@ export default function ExploreCampaigns() {
             </div>
           </div>
 
-          {/* Campaigns Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Campaign cards mapping */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {campaigns.map((campaign) => (
-              <div key={campaign.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <Image
-                  src={`/placeholder.svg?height=200&width=400`}
-                  alt={campaign.name}
-                  width={400}
-                  height={200}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">{campaign.name}</h3>
-                  <p className="text-gray-600 mb-4">{campaign.description}</p>
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm text-gray-500 mb-1">
-                      <span>Progress</span>
-                      <span>{Math.round((campaign.current / campaign.goal) * 100)}%</span>
+              <Link
+                href={`/campaigns/${campaign.id}`}
+                key={campaign.id}
+                className="block hover:no-underline"
+              >
+                <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold mb-2 text-gray-900">
+                      {campaign.project_name}
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      {campaign.project_description}
+                    </p>
+                    <div className="flex justify-between items-center text-sm text-gray-500">
+                      <span>Goal: {campaign.funding_goal / 1e8} sBTC</span>
+                      <span>
+                        Deadline:{" "}
+                        {new Date(campaign.deadline).toLocaleDateString()}
+                      </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div
-                        className="bg-yellow-500 h-2.5 rounded-full"
-                        style={{ width: `${(campaign.current / campaign.goal) * 100}%` }}
-                      ></div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">Goal: {campaign.goal} BTC</span>
-                    <span className="text-yellow-500 font-semibold">{campaign.current} BTC raised</span>
-                  </div>
-                  <div className="mt-4 flex justify-between items-center">
-                    <span className="text-xs text-gray-500">
-                      Ends {new Date(campaign.deadline).toLocaleDateString()}
-                    </span>
-                    <span className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded-full">
-                      {campaign.category}
-                    </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
 
@@ -197,7 +163,10 @@ export default function ExploreCampaigns() {
               >
                 2
               </a>
-              <a href="#" className="px-4 py-2 border-t border-b border-gray-300 bg-white text-yellow-500 font-medium">
+              <a
+                href="#"
+                className="px-4 py-2 border-t border-b border-gray-300 bg-white text-yellow-500 font-medium"
+              >
                 3
               </a>
               <a
@@ -229,23 +198,34 @@ export default function ExploreCampaigns() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
               <h3 className="text-lg font-semibold mb-4">About BitFund</h3>
-              <p className="text-sm text-gray-400">Empowering innovators through Bitcoin-based crowdfunding.</p>
+              <p className="text-sm text-gray-400">
+                Empowering innovators through Bitcoin-based crowdfunding.
+              </p>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="text-sm text-gray-400">
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     How It Works
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Start a Project
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Explore Projects
                   </a>
                 </li>
@@ -255,17 +235,26 @@ export default function ExploreCampaigns() {
               <h3 className="text-lg font-semibold mb-4">Legal</h3>
               <ul className="text-sm text-gray-400">
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Terms of Service
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Privacy Policy
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Cookie Policy
                   </a>
                 </li>
@@ -275,17 +264,26 @@ export default function ExploreCampaigns() {
               <h3 className="text-lg font-semibold mb-4">Connect</h3>
               <ul className="text-sm text-gray-400">
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Twitter
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Telegram
                   </a>
                 </li>
                 <li className="mb-2">
-                  <a href="#" className="hover:text-yellow-500 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-yellow-500 transition-colors"
+                  >
                     Discord
                   </a>
                 </li>
@@ -298,6 +296,5 @@ export default function ExploreCampaigns() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
-
