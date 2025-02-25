@@ -2,8 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import { Bitcoin, Wallet, PlusCircle, MinusCircle, Calendar, DollarSign, Send } from "lucide-react";
-import { AppConfig, UserSession, showConnect, openContractDeploy } from "@stacks/connect";
-import { StacksNetwork } from "@stacks/network";
+import { openContractDeploy } from "@stacks/connect";
+
+// Extend Window interface for LeatherProvider
+declare global {
+  interface Window {
+    LeatherProvider?: {
+      request: (method: string, params?: any) => Promise<any>;
+    };
+  }
+}
 
 export default function CreateCampaign() {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -11,6 +19,7 @@ export default function CreateCampaign() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [txId, setTxId] = useState("");
+  const [contractAddress, setContractAddress] = useState("");
 
   const [formData, setFormData] = useState({
     projectName: "",
@@ -20,134 +29,200 @@ export default function CreateCampaign() {
     rewards: [{ description: "", amount: "" }],
   });
 
-  // Configure app and user session
-  const appConfig = new AppConfig(["store_write", "publish_data"]);
-  const userSession = new UserSession({ appConfig });
-
-  // Local testnet configuration (Clarinet)
-  const localNetwork = {
-    url: "http://localhost:20443/v2",
-    fetchFn: fetch,
-  } as StacksNetwork;
+  console.log("Component initialized with initial state");
 
   // Check wallet connection on mount
   useEffect(() => {
+    console.log("useEffect triggered for wallet detection");
     const detectWallet = async () => {
+      console.debug("Starting wallet detection");
       if (window.LeatherProvider) {
-        if (userSession.isUserSignedIn()) {
-          const userData = userSession.loadUserData();
-          const stxAddress = userData.profile.stxAddress.testnet; // Use testnet address
-          setWalletAddress(stxAddress);
-          setIsWalletConnected(true);
+        console.info("LeatherProvider detected in window object");
+        try {
+          console.log("Requesting wallet addresses");
+          const response = await window.LeatherProvider.request('getAddresses');
+          console.debug("Wallet response received:", response);
+          if (response.result?.addresses) {
+            const stxAddress = response.result.addresses[0].address;
+            console.info("Wallet address retrieved:", stxAddress);
+            setWalletAddress(stxAddress);
+            setIsWalletConnected(true);
+            console.debug("Wallet state updated - connected:", true, "address:", stxAddress);
+          } else {
+            console.log("No addresses found in wallet response");
+          }
+        } catch (err) {
+          console.error("Wallet detection failed:", err);
         }
+      } else {
+        console.log("LeatherProvider not found in window object");
       }
     };
     detectWallet();
   }, []);
 
-  const connectWallet = () => {
-    showConnect({
-      appDetails: {
-        name: "BitFund",
-        icon: "https://example.com/icon.png", // Replace with your app's icon
-      },
-      onFinish: () => {
-        const userData = userSession.loadUserData();
-        const stxAddress = userData.profile.stxAddress.testnet;
-        setWalletAddress(stxAddress);
-        setIsWalletConnected(true);
-        setError("");
-      },
-      onCancel: () => {
-        setError("Connection canceled by user.");
-      },
-      userSession,
-    });
+  const connectWallet = async () => {
+    console.log("connectWallet function called");
+    if (window.LeatherProvider) {
+      console.info("Attempting wallet connection");
+      try {
+        console.debug("Sending getAddresses request to wallet");
+        const response = await window.LeatherProvider.request('getAddresses');
+        console.debug("Wallet connection response:", response);
+        if (response.result?.addresses) {
+          const stxAddress = response.result.addresses[0].address;
+          console.info("Successfully connected wallet with address:", stxAddress);
+          setWalletAddress(stxAddress);
+          setIsWalletConnected(true);
+          setError("");
+          console.debug("Wallet state updated after connection");
+        } else {
+          console.log("No addresses returned from wallet");
+          setError("No addresses found in wallet response");
+        }
+      } catch (err) {
+        console.error("Wallet connection error:", err);
+        setError("Failed to connect wallet. Please try again.");
+      }
+    } else {
+      console.log("Leather wallet extension not detected");
+      setError("Leather wallet not detected. Please install the Leather wallet extension.");
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    console.log("handleInputChange triggered");
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    console.debug("Input changed - name:", name, "value:", value);
+    setFormData((prevData) => {
+      const newData = { ...prevData, [name]: value };
+      console.debug("New form data:", newData);
+      return newData;
+    });
   };
 
   const handleRewardChange = (index: number, field: "description" | "amount", value: string) => {
+    console.log("handleRewardChange triggered", { index, field, value });
     const updatedRewards = [...formData.rewards];
     updatedRewards[index][field] = value;
-    setFormData((prevData) => ({
-      ...prevData,
-      rewards: updatedRewards,
-    }));
+    console.debug("Updated rewards array:", updatedRewards);
+    setFormData((prevData) => {
+      const newData = { ...prevData, rewards: updatedRewards };
+      console.debug("New form data with updated rewards:", newData);
+      return newData;
+    });
   };
 
   const addReward = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      rewards: [...prevData.rewards, { description: "", amount: "" }],
-    }));
+    console.log("addReward function called");
+    setFormData((prevData) => {
+      const newRewards = [...prevData.rewards, { description: "", amount: "" }];
+      console.debug("Added new reward, new rewards array:", newRewards);
+      const newData = { ...prevData, rewards: newRewards };
+      console.debug("New form data after adding reward:", newData);
+      return newData;
+    });
   };
 
   const removeReward = (index: number) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      rewards: prevData.rewards.filter((_, i) => i !== index),
-    }));
+    console.log("removeReward function called with index:", index);
+    setFormData((prevData) => {
+      const newRewards = prevData.rewards.filter((_, i) => i !== index);
+      console.debug("Removed reward at index", index, "new rewards array:", newRewards);
+      const newData = { ...prevData, rewards: newRewards };
+      console.debug("New form data after removing reward:", newData);
+      return newData;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("handleSubmit triggered");
     if (!isWalletConnected) {
-      setError("Please connect your wallet before submitting.");
+      console.log("Submission blocked: Wallet not connected");
+      setError("Please connect your Leather wallet before submitting.");
       return;
     }
 
     setIsSubmitting(true);
     setError("");
+    console.info("Starting contract deployment process...");
+    console.debug("Form data being submitted:", formData);
+
+    let deploymentStatus: "success" | "canceled" | "error" | null = null; // Track the outcome
 
     try {
-      // Example contract code (replace with your campaign contract)
       const contractCode = `
-        (define-data-var campaign-creator principal tx-sender)
-        (define-data-var campaign-title (string-ascii 100) "${formData.projectName}")
-        (define-data-var deadline uint u${Math.floor(new Date(formData.deadline).getTime() / 1000)})
-        (define-data-var funding-goal uint u${Math.round(parseFloat(formData.fundingGoal) * 1000000)})
-        (define-data-var total-raised uint u0)
-        (define-map donations principal uint)
-        (define-public (donate (amount uint))
+      (define-public (write-message (message (string-utf8 500)))
           (begin
-            (ok true)
+              (print message)
+              (ok "Message printed")
           )
-        )
-      `;
-      const contractName = `campaign-${Date.now()}`; // Unique name
+      )
+    `;
+      const contractName = `write-message-${Date.now()}`;
+      console.debug("Generated contract name:", contractName);
+      console.debug("Contract code to deploy:", contractCode);
 
-      await openContractDeploy({
+      console.log("Initiating contract deployment with openContractDeploy...");
+      openContractDeploy({
         contractName,
         codeBody: contractCode,
-        network: localNetwork,
-        appDetails: { name: "BitFund", icon: "https://example.com/icon.png" },
+        appDetails: {name: "BitFund", icon: "https://example.com/icon.png"},
         onFinish: (data) => {
+          console.info("Contract deployment finished successfully");
+          console.debug("Deployment data:", data);
+          console.log("Transaction ID:", data.txId);
+          const deployedContractAddress = `${walletAddress}.${contractName}`;
+          setContractAddress(deployedContractAddress);
+          console.debug("Deployed contract address set:", deployedContractAddress);
           setTxId(data.txId);
           setIsSubmitting(false);
-          console.log("Contract deployed! TX ID:", data.txId);
+          deploymentStatus = "success"; // Set status to success
         },
         onCancel: () => {
+          console.log("Contract deployment canceled by user");
           setError("Deployment canceled by user.");
           setIsSubmitting(false);
+          deploymentStatus = "canceled"; // Set status to canceled
         },
       });
+
+      console.info("openContractDeploy promise resolved");
+      // Now check the outcome
+      if (deploymentStatus === "success") {
+        console.log("Deployment was successful!");
+      } else if (deploymentStatus === "canceled") {
+        console.log("Deployment was canceled by the user.");
+      } else {
+        console.warn("Unexpected state: deploymentStatus not set.");
+      }
+
     } catch (err) {
-      console.error("Error deploying contract:", err);
-      setError("Failed to create campaign. Please try again.");
+      console.error("Error during contract deployment:", err);
+      setError("Failed to deploy contract. Please try again.");
       setIsSubmitting(false);
+      deploymentStatus = "error"; // Set status to error
+      console.log("Deployment failed with error.");
     }
+
+    // Optional: Final status check outside the try-catch
+    console.debug("Final deployment status:", deploymentStatus);
   };
+
+  console.log("Rendering component with current state", {
+    isWalletConnected,
+    walletAddress,
+    isSubmitting,
+    error,
+    txId,
+    contractAddress,
+    formData,
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
+      {console.debug("Rendering header")}
       <header className="bg-gray-900 text-white">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -165,10 +240,12 @@ export default function CreateCampaign() {
         </div>
       </header>
 
+      {console.debug("Rendering main content")}
       <main className="flex-grow bg-gray-100 py-12">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-8">Create a New Campaign</h1>
+          <h1 className="text-3xl font-bold mb-8">Deploy Simple Contract</h1>
 
+          {console.debug("Rendering form")}
           <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-8">
             <div className="mb-6">
               <label htmlFor="projectName" className="block text-gray-700 text-sm font-bold mb-2">
@@ -181,7 +258,6 @@ export default function CreateCampaign() {
                 value={formData.projectName}
                 onChange={handleInputChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
               />
             </div>
 
@@ -195,13 +271,12 @@ export default function CreateCampaign() {
                 value={formData.projectDescription}
                 onChange={handleInputChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-32"
-                required
               />
             </div>
 
             <div className="mb-6">
               <label htmlFor="fundingGoal" className="block text-gray-700 text-sm font-bold mb-2">
-                Funding Goal (sBTC)
+                Funding Goal (STX)
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -214,7 +289,6 @@ export default function CreateCampaign() {
                   value={formData.fundingGoal}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 pl-10 pr-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                   step="0.000001"
                   min="0"
                 />
@@ -236,15 +310,16 @@ export default function CreateCampaign() {
                   value={formData.deadline}
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 pl-10 pr-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
                 />
               </div>
             </div>
 
+            {console.debug("Rendering rewards section")}
             <div className="mb-6">
               <label className="block text-gray-700 text-sm font-bold mb-2">Rewards (Optional)</label>
               {formData.rewards.map((reward, index) => (
                 <div key={index} className="flex items-center mb-2">
+                  {console.debug("Rendering reward input", { index, reward })}
                   <input
                     type="text"
                     placeholder="Reward description"
@@ -254,7 +329,7 @@ export default function CreateCampaign() {
                   />
                   <input
                     type="number"
-                    placeholder="Amount (sBTC)"
+                    placeholder="Amount (STX)"
                     value={reward.amount}
                     onChange={(e) => handleRewardChange(index, "amount", e.target.value)}
                     className="shadow appearance-none border rounded w-1/4 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mr-2"
@@ -278,20 +353,39 @@ export default function CreateCampaign() {
 
             {!isWalletConnected && (
               <div className="mb-6">
+                {console.debug("Rendering connect wallet button")}
                 <button
                   type="button"
                   onClick={connectWallet}
                   className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline flex items-center"
                 >
                   <Wallet className="h-5 w-5 mr-2" />
-                  Connect Wallet
+                  Connect Leather Wallet
                 </button>
               </div>
             )}
 
-            {error && <div className="mb-6 text-red-500">{error}</div>}
-            {txId && <div className="mb-6 text-green-500">Contract Deployed! TX ID: {txId}</div>}
+            {isWalletConnected && (
+              <div className="mb-6 text-gray-700">
+                {console.debug("Rendering connected address:", walletAddress)}
+                Connected Address: {walletAddress}
+              </div>
+            )}
+            {error && (
+              <div className="mb-6 text-red-500">
+                {console.debug("Rendering error message:", error)}
+                {error}
+              </div>
+            )}
+            {txId && (
+              <div className="mb-6 text-green-500">
+                {console.debug("Rendering success message", { txId, contractAddress })}
+                Contract Deployed! TX ID: {txId}
+                {contractAddress && <div>Contract Address: {contractAddress}</div>}
+              </div>
+            )}
 
+            {console.debug("Rendering submit button", { isWalletConnected, isSubmitting })}
             <div className="flex items-center justify-between">
               <button
                 type="submit"
@@ -322,12 +416,12 @@ export default function CreateCampaign() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Creating Campaign...
+                    Deploying Contract...
                   </>
                 ) : (
                   <>
                     <Send className="h-5 w-5 mr-2" />
-                    Create Campaign
+                    Deploy Contract
                   </>
                 )}
               </button>
@@ -336,6 +430,7 @@ export default function CreateCampaign() {
         </div>
       </main>
 
+      {console.debug("Rendering footer")}
       <footer className="bg-gray-900 text-white py-10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

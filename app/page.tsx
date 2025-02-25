@@ -45,7 +45,7 @@ export default function Home() {
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-5xl font-bold mb-6">Crowdfund the Future with Bitcoin</h1>
             <p className="text-xl mb-8">Join the revolution of decentralized funding for innovative projects</p>
-            <Link href="/sign-in">
+            <Link href="/create-campaign">
               <button className="bg-yellow-500 text-gray-900 px-8 py-3 rounded-full font-semibold text-lg hover:bg-yellow-400 transition-colors inline-flex items-center">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />

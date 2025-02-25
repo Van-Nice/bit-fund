@@ -11,6 +11,7 @@ import {
   uintCV,
   StacksTestnet,
 } from "@stacks/transactions";
+import Link from 'next/link';
 
 export default function WalletConnection() {
   const [isWalletDetected, setIsWalletDetected] = useState(false);
@@ -29,7 +30,7 @@ export default function WalletConnection() {
         setIsWalletDetected(true);
         if (userSession.isUserSignedIn()) {
           const userData = userSession.loadUserData();
-          const stxAddress = userData.profile.stxAddress.testnet; // Updated to testnet
+          const stxAddress = userData.profile.stxAddress.testnet; 
           setWalletAddress(stxAddress);
           setIsWalletConnected(true);
         }
@@ -45,7 +46,7 @@ export default function WalletConnection() {
     showConnect({
       appDetails: {
         name: "BitFund",
-        icon: "https://example.com/icon.png", // Replace with your app's icon
+        icon: "https://example.com/icon.png",
       },
       onFinish: () => {
         const userData = userSession.loadUserData();
@@ -168,7 +169,7 @@ export default function WalletConnection() {
             )}
           </div>
 
-          <div className="bg-white shadow-md rounded-lg p-8">
+          {/* <div className="bg-white shadow-md rounded-lg p-8">
             <h2 className="text-2xl font-semibold mb-4">Sample Transaction</h2>
             <form onSubmit={handleTransaction}>
               <div className="mb-4">
@@ -202,7 +203,12 @@ export default function WalletConnection() {
             {transactionStatus && (
               <div className="mt-4 p-4 bg-blue-100 text-blue-700 rounded-md">{transactionStatus}</div>
             )}
-          </div>
+          </div> */}
+          <Link href="/create-campaign">
+            <button className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-lg font-bold py-3 px-6 rounded-xl shadow-lg hover:from-purple-600 hover:to-indigo-700 transform hover:scale-105 transition-all duration-300">
+              Create Campaign
+            </button>
+          </Link>
         </div>
       </main>
 
