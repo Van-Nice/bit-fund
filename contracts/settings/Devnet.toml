@@ -131,6 +131,16 @@ disable_stacks_api = false
 # epoch_3_0 = 142
 # epoch_3_1 = 144
 
+[[contracts]]
+name = "campaigns"
+path = "contracts/campaigns.clar"
+deployer = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM"
+
+[[contracts]]
+name = "mock-sbtc"
+path = "contracts/mock-sbtc.clar"
+deployer = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM"
+
 # Send some stacking orders
 [[devnet.pox_stacking_orders]]
 start_at_cycle = 1
