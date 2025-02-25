@@ -11,7 +11,7 @@ plan:
         - contract-publish:
             contract-name: campaigns
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 50720
+            cost: 51320
             path: contracts/campaigns.clar
             anchor-block-only: true
             clarity-version: 3

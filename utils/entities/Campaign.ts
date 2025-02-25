@@ -30,5 +30,5 @@ export class Campaign {
   created_at!: Date;
 
   @Column({ type: "integer", nullable: true })
-  campaign_id?: number;
+  campaign_id!: number;
 }

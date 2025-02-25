@@ -44,8 +44,8 @@ export default async function CampaignDetails({
       {
         amount: 0.01,
         description: "Early Supporter: Get exclusive project updates",
-      }
-    ] as Reward[],  // Add the type assertion here
+      },
+    ] as Reward[], // Add the type assertion here
     backersList: [],
   };
 

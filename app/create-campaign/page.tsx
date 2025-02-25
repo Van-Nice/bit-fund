@@ -11,6 +11,7 @@ import {
   PostConditionMode,
 } from "@stacks/transactions";
 import { STACKS_DEVNET } from "@stacks/network";
+import { useRouter } from "next/navigation";
 
 const network = {
   ...STACKS_DEVNET,
@@ -46,6 +47,7 @@ export default function CreateCampaign() {
   const [txId, setTxId] = useState("");
   const [campaignId, setCampaignId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const router = useRouter();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -103,8 +105,19 @@ export default function CreateCampaign() {
     const duration = Math.ceil(timeDifference / 600);
     const goalInMicroUnits = Math.floor(fundingGoal * 1e8);
 
+    console.log("Submitting campaign with data:", {
+      projectName: formData.projectName,
+      fundingGoal: goalInMicroUnits,
+      duration,
+      deadline: new Date(deadlineTime).toISOString(),
+    });
+
     try {
       // Blockchain transaction
+      console.log("Creating transaction with args:", {
+        goal: goalInMicroUnits,
+        duration,
+      });
       const functionArgs = [Cl.uint(goalInMicroUnits), Cl.uint(duration)];
       const txOptions = {
         contractAddress,
@@ -119,94 +132,61 @@ export default function CreateCampaign() {
       };
 
       const transaction = await makeContractCall(txOptions);
+      console.log("Transaction created:", transaction);
+
       const broadcastResponse = await broadcastTransaction({
         transaction,
         network,
       });
-
       if ("error" in broadcastResponse) {
+        console.error("Broadcast failed:", broadcastResponse.error);
         throw new Error(broadcastResponse.error);
       }
 
       const txIdResult = broadcastResponse.txid;
+      console.log("Transaction broadcasted successfully, txId:", txIdResult);
       setTxId(txIdResult);
 
-      // Wait for the transaction to be mined (Devnet ~10s/block)
-      await new Promise((resolve) => setTimeout(resolve, 15000));
-
-      let campaignIdResult: number | undefined;
-      try {
-        // Fetch transaction details to get the campaign ID (optional)
-        const txResponse = await fetch(
-          `http://localhost:20443/v2/transactions/${txIdResult}`
-        );
-
-        if (txResponse.ok) {
-          const txData = await txResponse.json();
-          if (
-            txData.tx_status === "success" &&
-            txData.contract_call?.function_result
-          ) {
-            const result = txData.contract_call.function_result;
-            const campaignIdMatch = result.match(/\(ok u(\d+)\)/);
-            if (campaignIdMatch) {
-              campaignIdResult = parseInt(campaignIdMatch[1], 10);
-              setCampaignId(campaignIdResult);
-              console.log(`Campaign ID: ${campaignIdResult}`);
-            }
-          }
-        } else {
-          console.warn(
-            "Failed to fetch transaction details, continuing without campaign ID"
-          );
-        }
-      } catch (error) {
-        console.warn("Error fetching transaction details:", error);
-        // Continue execution even if fetching transaction details fails
-      }
-
-      // Continue with database submission regardless of transaction details fetch
+      // Database submission
       const campaignData = {
         tx_id: txIdResult,
         project_name: formData.projectName,
         project_description: formData.projectDescription,
         funding_goal: goalInMicroUnits,
         deadline: new Date(deadlineTime).toISOString(),
-        campaign_id: campaignIdResult,
       };
+      console.log("Sending campaign data to API:", campaignData);
 
-      // Add debugging before the API call
-      console.log("Sending to API:", {
-        data: campaignData,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      // Send data to the API route
       const apiResponse = await fetch("/api/campaigns", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(campaignData),
       });
 
       if (!apiResponse.ok) {
         const errorData = await apiResponse.json();
+        console.error("API response error:", errorData);
         throw new Error(
           errorData.error || "Failed to save campaign to database"
         );
       }
 
       const apiData = await apiResponse.json();
-      console.log("Campaign saved to database:", apiData);
+      console.log("Campaign successfully saved to database:", apiData);
+
+      // Set the campaign ID from the database response and redirect
+      if (apiData.campaign && apiData.campaign.id) {
+        const newCampaignId = apiData.campaign.campaign_id;
+        setCampaignId(newCampaignId);
+        router.push(`/campaigns/${apiData.campaign.id}`);
+      }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Submission error:", error);
       setErrorMessage(
         error instanceof Error ? error.message : "An unexpected error occurred"
       );
     } finally {
+      console.log("Submission process completed, isSubmitting set to false");
       setIsSubmitting(false);
     }
   };

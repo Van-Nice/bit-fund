@@ -14,11 +14,32 @@ export class CampaignService {
     this.campaignRepository = AppDataSource.getRepository(Campaign);
   }
 
+  private async getNextCampaignId(): Promise<number> {
+    const campaigns = await this.getAllCampaigns();
+    if (!campaigns.length) {
+      return 1;
+    }
+
+    // Find the highest campaign_id
+    const highestId = Math.max(
+      ...campaigns
+        .filter((c) => c.campaign_id !== null && c.campaign_id !== undefined)
+        .map((c) => c.campaign_id || 0)
+    );
+
+    return highestId + 1;
+  }
+
   async createCampaign(campaignData: Partial<Campaign>): Promise<Campaign> {
+    // Get the next campaign_id
+    const nextCampaignId = await this.getNextCampaignId();
+
     const campaign = this.campaignRepository.create({
       ...campaignData,
+      campaign_id: nextCampaignId,
       created_at: new Date(), // Will be overridden by CreateDateColumn
     });
+
     return await this.campaignRepository.save(campaign);
   }
 

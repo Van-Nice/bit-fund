@@ -20,49 +20,6 @@ export default async function ExploreCampaigns() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      {/* <header className="bg-gray-900 text-white">
-        <div className="container mx-auto px-4 py-6 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Bitcoin className="h-8 w-8 text-yellow-500" />
-            <span className="text-2xl font-bold">BitFund</span>
-          </div>
-          <nav>
-            <ul className="flex space-x-6">
-              <li>
-                <Link
-                  href="/"
-                  className="hover:text-yellow-500 transition-colors"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/campaigns" className="text-yellow-500">
-                  Campaigns
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/about"
-                  className="hover:text-yellow-500 transition-colors"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/contact"
-                  className="hover:text-yellow-500 transition-colors"
-                >
-                  Contact
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header> */}
-
       <main className="flex-grow bg-gray-100">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-4xl font-bold mb-8">Explore Campaigns</h1>

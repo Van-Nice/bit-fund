@@ -5,40 +5,6 @@ import Link from "next/link"
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-gray-900 text-white">
-        <div className="container mx-auto px-4 py-6 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Bitcoin className="h-8 w-8 text-yellow-500" />
-            <span className="text-2xl font-bold">BitFund</span>
-          </div>
-          <nav>
-            <ul className="flex space-x-6">
-              <li>
-                <a href="#" className="hover:text-yellow-500 transition-colors">
-                  Home
-                </a>
-              </li>
-              <li>
-                <Link href="/campaigns" className="hover:text-yellow-500 transition-colors">
-                  Projects
-                </Link>
-              </li>
-              <li>
-                <a href="#" className="hover:text-yellow-500 transition-colors">
-                  About
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-yellow-500 transition-colors">
-                  Contact
-                </a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </header>
-
       <main>
         {/* Hero Section */}
         <section className="bg-gray-900 text-white py-20">

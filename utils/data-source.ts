@@ -14,7 +14,7 @@ export const AppDataSource = new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   synchronize: true, // Be careful with this in production
-  logging: true,
+  logging: false, // Disable all logging
   entities: [Campaign],
   ssl: {
     rejectUnauthorized: false, // Might be needed for some hosting providers

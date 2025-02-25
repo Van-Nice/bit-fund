@@ -36,7 +36,7 @@
   )
 )
 
-;; Function to create a new crowdfunding campaign
+;; Function to create a new crowdfunding campaign with event emission
 (define-public (create-campaign (goal uint) (duration uint))
   (let ((campaign-id (+ (var-get next-campaign-id) u1)))
     (map-set campaigns campaign-id 
@@ -49,18 +49,25 @@
       }
     )
     (var-set next-campaign-id campaign-id)
+    ;; Emit an event with the campaign details
+    (print { 
+      event: "campaign-created", 
+      campaign-id: campaign-id, 
+      creator: tx-sender, 
+      goal: goal, 
+      end-block-height: (+ stacks-block-height duration) 
+    })
     (ok campaign-id)
   )
 )
 
-;; Function to contribute sBTC to a campaign
+;; Function to contribute sBTC to a campaign (unchanged)
 (define-public (contribute (campaign-id uint) (amount uint) (sbtc <sbtc-trait>))
   (let ((campaign (unwrap! (map-get? campaigns campaign-id) (err ERR-CAMPAIGN-NOT-FOUND))))
     (asserts! (< stacks-block-height (get end-block-height campaign)) (err ERR-CAMPAIGN-ENDED))
     (asserts! (> amount u0) (err ERR-ZERO-CONTRIBUTION))
     (let ((contribution (default-to { amount: u0 } 
                           (map-get? contributions { campaign-id: campaign-id, donor: tx-sender }))))
-      ;; Transfer sBTC from donor to contract using the passed sbtc parameter
       (try! (contract-call? sbtc transfer amount tx-sender (as-contract tx-sender) none))
       (map-set contributions 
         { campaign-id: campaign-id, donor: tx-sender } 
@@ -74,14 +81,13 @@
   )
 )
 
-;; Function for creator to withdraw funds if goal is met
+;; Function for creator to withdraw funds if goal is met (unchanged)
 (define-public (withdraw-funds (campaign-id uint) (sbtc <sbtc-trait>))
   (let ((campaign (unwrap! (map-get? campaigns campaign-id) (err ERR-CAMPAIGN-NOT-FOUND))))
     (asserts! (is-eq tx-sender (get creator campaign)) (err ERR-NOT-CREATOR))
     (asserts! (>= stacks-block-height (get end-block-height campaign)) (err ERR-CAMPAIGN-NOT-ENDED))
     (asserts! (>= (get total-funded campaign) (get goal campaign)) (err ERR-GOAL-NOT-MET))
     (asserts! (not (get funded campaign)) (err ERR-ALREADY-FUNDED))
-    ;; Transfer total-funded sBTC from contract to creator using the passed sbtc parameter
     (try! (as-contract (contract-call? sbtc transfer 
                         (get total-funded campaign) tx-sender (get creator campaign) none)))
     (map-set campaigns campaign-id (merge campaign { funded: true }))
@@ -89,7 +95,7 @@
   )
 )
 
-;; Function for donors to get refunds if goal is not met
+;; Function for donors to get refunds if goal is not met (unchanged)
 (define-public (refund (campaign-id uint) (sbtc <sbtc-trait>))
   (let ((campaign (unwrap! (map-get? campaigns campaign-id) (err ERR-CAMPAIGN-NOT-FOUND))))
     (asserts! (>= stacks-block-height (get end-block-height campaign)) (err ERR-CAMPAIGN-NOT-ENDED))
@@ -100,7 +106,6 @@
                                    (err ERR-NO-CONTRIBUTION))))
         (let ((amount (get amount contribution)))
           (asserts! (> amount u0) (err ERR-ZERO-CONTRIBUTION))
-          ;; Transfer contribution from contract to donor using the passed sbtc parameter
           (try! (as-contract (contract-call? sbtc transfer amount tx-sender donor none)))
           (map-set contributions 
             { campaign-id: campaign-id, donor: donor } 
@@ -113,12 +118,12 @@
   )
 )
 
-;; Read-only function to get campaign details
+;; Read-only function to get campaign details (unchanged)
 (define-read-only (get-campaign (campaign-id uint))
   (map-get? campaigns campaign-id)
 )
 
-;; Read-only function to get a donor's contribution to a campaign
+;; Read-only function to get a donor's contribution to a campaign (unchanged)
 (define-read-only (get-contribution (campaign-id uint) (donor principal))
   (default-to { amount: u0 } 
     (map-get? contributions { campaign-id: campaign-id, donor: donor }))
