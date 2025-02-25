@@ -351,3 +351,4 @@ export default async function CampaignDetails({
     </div>
   );
 }
+
