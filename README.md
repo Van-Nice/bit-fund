@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 BitFund - Bitcoin-Powered DeFi Crowdfunding  
 
-## Getting Started
+BitFund is a **decentralized crowdfunding platform** that enables users to **raise and contribute Bitcoin (sBTC)** using **Stacks smart contracts**.  
 
-First, run the development server:
+## 🔥 Why BitFund?  
+✅ **Trustless** – Funds are secured via smart contracts.  
+✅ **Transparent** – Every transaction is verifiable on-chain.  
+✅ **Bitcoin-Native** – Users can **mint BTC to sBTC** for DeFi interactions.  
+✅ **No Intermediaries** – Direct sBTC contributions without centralized control.  
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ⚙️ How It Works  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 1️⃣ Mint BTC to sBTC  
+- Users **lock BTC** and mint **1:1 pegged sBTC**.  
+- sBTC enables **smart contract interactions** on Stacks.  
+- Users can **burn sBTC** to reclaim BTC at any time.  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 2️⃣ Create a Campaign  
+- Users submit **project name, funding goal, deadline**.  
+- The **`createCampaign`** smart contract function stores it on-chain.  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3️⃣ Contribute to a Campaign  
+- Users **invest sBTC** into campaigns via the **`contribute`** function.  
+- Transactions are recorded on **Stacks Devnet** and can be verified.  
 
-## Learn More
+## 🔗 Smart Contract Integration  
+✔ **Clarity-powered** – Immutable & secure funding logic.  
+✔ **Key functions:**  
+  - `createCampaign` – Stores campaign details on-chain.  
+  - `contribute` – Transfers sBTC to campaigns.  
+  - *Future:* `withdrawFunds` for campaign owners.  
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Roadmap  
+- **Enable Wallet Connection** – Use **Leather Wallet** for direct sBTC contributions.  
+- **Fetch campaign IDs from DB** *(instead of using random numbers).*  
+- **Integrate Smart Contract Functions**:  
+  - **Enable Withdrawals** – Fundraisers can withdraw raised sBTC.  
+  - **Enable Refunds** – Contributors can reclaim funds if funding fails.  
+  - **Implement Milestone-Based Funding** – Funds released in stages based on progress.  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 💡 Conclusion  
+BitFund showcases **Bitcoin-native DeFi crowdfunding** using **sBTC & Stacks**, ensuring **secure, transparent, and trustless** funding. Even in MVP form, it proves that **Bitcoin can go beyond payments and power decentralized applications**.  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🚀 Getting Started  
+working version in succefullpayment branch
+1. **Clone the repository:**  
+   ```bash
+   git clone https://github.com/your-username/bitfund.git
+   cd bitfund
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
