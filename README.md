@@ -1,7 +1,7 @@
 # 🚀 BitFund - Bitcoin-Powered DeFi Crowdfunding  
 
 BitFund is a **decentralized crowdfunding platform** that enables users to **raise and contribute Bitcoin (sBTC)** using **Stacks smart contracts**.  
-
+https://youtu.be/A6pHdoSxu3M
 ## 🔥 Why BitFund?  
 ✅ **Trustless** – Funds are secured via smart contracts.  
 ✅ **Transparent** – Every transaction is verifiable on-chain.  
