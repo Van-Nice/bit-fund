@@ -9,10 +9,17 @@ plan:
     - id: 0
       transactions:
         - contract-publish:
-            contract-name: hello-stacks
+            contract-name: campaigns
             expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            cost: 1320
-            path: contracts/hello-stacks.clar
+            cost: 50720
+            path: contracts/campaigns.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: mock-sbtc
+            expected-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            cost: 1130
+            path: contracts/mock-sbtc.clar
             anchor-block-only: true
             clarity-version: 3
       epoch: "3.1"
