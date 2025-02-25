@@ -75,6 +75,7 @@ balance = 100_000_000_000_000
 [devnet]
 disable_stacks_explorer = false
 disable_stacks_api = false
+bitcoin_controller_block_time = 10000 # 10 seconds per block
 # disable_postgres = false
 # disable_subnet_api = false
 # disable_bitcoin_explorer = true
@@ -137,7 +138,7 @@ path = "contracts/campaigns.clar"
 deployer = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM"
 
 [[contracts]]
-name = "mock-sbtc"
+name = "sbtc"
 path = "contracts/mock-sbtc.clar"
 deployer = "ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM"
 
