@@ -21,7 +21,7 @@ export default async function ExploreCampaigns() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="bg-gray-900 text-white">
+      {/* <header className="bg-gray-900 text-white">
         <div className="container mx-auto px-4 py-6 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <Bitcoin className="h-8 w-8 text-yellow-500" />
@@ -61,7 +61,7 @@ export default async function ExploreCampaigns() {
             </ul>
           </nav>
         </div>
-      </header>
+      </header> */}
 
       <main className="flex-grow bg-gray-100">
         <div className="container mx-auto px-4 py-8">
